@@ -1,0 +1,4 @@
+{
+  "namespace": "suffering",
+  "setup": "setup.mjs"
+}

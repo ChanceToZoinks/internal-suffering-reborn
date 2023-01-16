@@ -1,0 +1,134 @@
+{
+  "$schema": "https://melvoridle.com/assets/schema/gameData.json",
+  "data": {
+    "gamemodes": [
+      {
+        "id": "internal_suffering_reborn",
+        "name": "Internal Suffering Reborn",
+        "media": "img/icon.png",
+        "description": "Internal Suffering Speedrun returns!",
+        "rules": [
+          "See https://wiki.melvoridle.com/w/Internal_Suffering_Speedrun for the full list of changes.",
+          "-2s Monster respawn timer",
+          "+800% Global Mastery XP",
+          "-80% Skill intervals",
+          "-80% Attack Interval for both the player and Monsters.",
+          "Uses the same Combat Triangle as Hardcore mode, except it is reversed - Melee beats Magic, Ranged beats Melee, and Magic beats Ranged.",
+          "This cap can be increased by 10 (13 with TotH) each time the player chooses to permanently disable any non-combat skill, so the player will be able to reach level 99 (120 with TotH) once 9 skills have been disabled. Once disabled, a skill may no longer be used.",
+          "The player's skill level for all skills is initially capped at level 10.",
+          "All Skills except Firemaking, Farming, and Township are available from the start."
+        ],
+        "textClass": "text-warning",
+        "btnClass": "btn-gamemode-standard",
+        "isPermaDeath": false,
+        "isEvent": false,
+        "endDate": 0,
+        "combatTriangle": "InvertedHardcore",
+        "hitpointMultiplier": 10,
+        "hasRegen": true,
+        "capNonCombatSkillLevels": false,
+        "allowSkillUnlock": false,
+        "skillUnlockCost": [],
+        "startingPage": "melvorD:Combat",
+        "startingItems": [],
+        "hasTutorial": false,
+        "playerModifiers": {
+          "decreasedAttackIntervalPercent": 80,
+          "decreasedMonsterRespawnTimer": 2000,
+          "decreasedGlobalSkillIntervalPercent": 80,
+          "increasedGlobalMasteryXP": 800
+        },
+        "enemyModifiers": {
+          "decreasedAttackIntervalPercent": 80
+        },
+        "startingSkills": [
+          "melvorD:Agility",
+          "melvorD:Astrology",
+          "melvorD:Attack",
+          "melvorD:Cooking",
+          "melvorD:Crafting",
+          "melvorD:Defence",
+          "melvorD:Fishing",
+          "melvorD:Fletching",
+          "melvorD:Herblore",
+          "melvorD:Hitpoints",
+          "melvorD:Magic",
+          "melvorD:Mining",
+          "melvorD:Prayer",
+          "melvorD:Ranged",
+          "melvorD:Runecrafting",
+          "melvorD:Slayer",
+          "melvorD:Smithing",
+          "melvorD:Strength",
+          "melvorD:Summoning",
+          "melvorD:Thieving",
+          "melvorD:Woodcutting"
+        ]
+      },
+      {
+        "id": "internal_suffering_reborn_hardcore",
+        "name": "Hardcore Internal Suffering Reborn",
+        "media": "img/icon.png",
+        "description": "Internal Suffering Speedrun returns, this time in Hardcore!",
+        "rules": [
+          "See https://wiki.melvoridle.com/w/Internal_Suffering_Speedrun for the full list of changes.",
+          "-2s Monster respawn timer",
+          "+800% Global Mastery XP",
+          "-80% Skill intervals",
+          "-80% Attack Interval for both the player and Monsters.",
+          "Uses the same Combat Triangle as Hardcore mode, except it is reversed - Melee beats Magic, Ranged beats Melee, and Magic beats Ranged.",
+          "This cap can be increased by 10 each time the player chooses to permanently disable any non-combat skill, so the player will be able to reach level 99 (120 with TotH) once 9 skills have been disabled. Once disabled, a skill may no longer be used.",
+          "The player's skill level for all skills is initially capped at level 10.",
+          "All Skills except Firemaking, Farming, and Township are available from the start.",
+          "Permadeath and no regen."
+        ],
+        "textClass": "text-warning",
+        "btnClass": "btn-gamemode-hardcore",
+        "isPermaDeath": true,
+        "isEvent": false,
+        "endDate": 0,
+        "combatTriangle": "InvertedHardcore",
+        "hitpointMultiplier": 10,
+        "hasRegen": false,
+        "capNonCombatSkillLevels": false,
+        "allowSkillUnlock": false,
+        "skillUnlockCost": [],
+        "startingPage": "melvorD:Combat",
+        "startingItems": [],
+        "hasTutorial": false,
+        "playerModifiers": {
+          "decreasedAttackIntervalPercent": 80,
+          "decreasedMonsterRespawnTimer": 2000,
+          "decreasedGlobalSkillIntervalPercent": 80,
+          "increasedGlobalMasteryXP": 800
+        },
+        "enemyModifiers": {
+          "decreasedAttackIntervalPercent": 80
+        },
+        "startingSkills": [
+          "melvorD:Agility",
+          "melvorD:Astrology",
+          "melvorD:Attack",
+          "melvorD:Cooking",
+          "melvorD:Crafting",
+          "melvorD:Defence",
+          "melvorD:Fishing",
+          "melvorD:Fletching",
+          "melvorD:Herblore",
+          "melvorD:Hitpoints",
+          "melvorD:Magic",
+          "melvorD:Mining",
+          "melvorD:Prayer",
+          "melvorD:Ranged",
+          "melvorD:Runecrafting",
+          "melvorD:Slayer",
+          "melvorD:Smithing",
+          "melvorD:Strength",
+          "melvorD:Summoning",
+          "melvorD:Thieving",
+          "melvorD:Woodcutting"
+        ]
+      }
+    ]
+  }
+}
