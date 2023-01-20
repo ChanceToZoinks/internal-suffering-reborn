@@ -96,7 +96,7 @@ export default class InternalSufferingService {
 
   #disable_skill_and_raise_level_cap(skill: AnySkill) {
     if (
-      !is_suffering ||
+      !is_suffering() ||
       !skill.isUnlocked ||
       this.#data.num_skills_disabled >= this.#data.num_skill_disables_to_cap
     )
@@ -315,7 +315,7 @@ export default class InternalSufferingService {
     });
 
     service.#ctx.onInterfaceReady((_c) => {
-      if (!is_suffering) return;
+      if (!is_suffering()) return;
 
       service.#patch_skill_levelCap();
       service.#patch_skill_capXPForGamemode();
