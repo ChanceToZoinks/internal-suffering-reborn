@@ -1,23 +1,34 @@
 {
   "name": "internal-suffering-reborn",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "pack": "webpack",
-    "zip": "node scripts/zip.js",
-    "build": "webpack && node scripts/zip.js"
+    "zip": "node scripts/zip.cjs",
+    "build": "webpack && node scripts/zip.cjs"
   },
   "keywords": [],
   "author": "the_real_hagne",
   "license": "ISC",
   "devDependencies": {
+    "@types/node": "^18.11.18",
+    "@typescript-eslint/eslint-plugin": "^5.48.2",
+    "@typescript-eslint/parser": "^5.48.2",
     "archiver": "^5.3.1",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.1",
     "del": "^7.0.0",
+    "eslint": "^8.32.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "melvor-types": "github:ChanceToZoinks/melvor-types",
+    "prettier": "^2.8.3",
     "style-loader": "^3.3.1",
+    "ts-loader": "^9.4.2",
+    "typescript": "^4.9.4",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0"
   }
