@@ -138,23 +138,45 @@ export default class InternalSufferingService {
     });
   }
 
+  #show_beat_game() {
+    showFireworks();
+    SwalLocale.fire({
+      iconHtml: this.logo_html,
+      title: "You won!",
+      text: `Congratulations! You finished with a time of ${formatAsTimePeriod(get_account_age())}`,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yay!",
+    });
+  }
+
   #patch_baseManager_onEnemyDeath() {
     this.#log("Patching BaseManager.onEnemyDeath...");
     const self = this;
-    this.ctx.patch(BaseManager, "onEnemyDeath").after((r) => {
+    this.ctx.patch(BaseManager, "onEnemyDeath").after(function (r) {
       const final_boss = cloudManager.hasTotHEntitlement ? "melvorTotH:TheHeraldPhase3" : "melvorF:BaneInstrumentOfFear";
-      let _c;
-      if (self.is_suffering && ((_c = this.enemy.monster) === null || _c === void 0 ? void 0 : _c.id) === final_boss && game.stats.monsterKillCount(this.enemy.monster) === 1) {
-        showFireworks();
-        SwalLocale.fire({
-          iconHtml: self.logo_html,
-          title: "You won!",
-          text: `Congratulations! You finished with a time of ${formatAsTimePeriod(get_account_age())}`,
-          confirmButtonColor: "#3085d6",
-          cancelButtonColor: "#d33",
-          confirmButtonText: "Yay!",
-        });
+      let _a, _b;
+      this.enemy.processDeath();
+      this.addMonsterStat(MonsterStats.KilledByPlayer);
+      if (
+        ((_a = this.enemy.monster) === null || _a === void 0
+          ? void 0
+          : _a.pet) !== undefined
+      ) {
+        let kills = this.game.stats.monsterKillCount(this.enemy.monster);
+        if (this.enemy.monster.id === "melvorD:Golbin")
+          kills += this.game.stats.GolbinRaid.get(RaidStats.GolbinsKilled);
+        if (kills >= this.enemy.monster.pet.kills)
+          this.game.petManager.unlockPet(this.enemy.monster.pet.pet);
       }
+      if (
+        self.is_suffering &&
+        ((_b = this.enemy.monster) === null || _b === void 0 ? void 0 : _b.id) ===
+        final_boss &&
+        this.game.stats.monsterKillCount(this.enemy.monster) === 1
+      )
+        self.#show_beat_game();
+      return false;
     })
   }
 
@@ -192,7 +214,7 @@ export default class InternalSufferingService {
   #patch_skill_levelCap() {
     this.#log("Patching Skill.levelCap...");
     const self = this;
-    this.ctx.patch(Skill, "levelCap").get(() => {
+    this.ctx.patch(Skill, "levelCap").get(function () {
       return self.soft_level_cap;
     });
   }
