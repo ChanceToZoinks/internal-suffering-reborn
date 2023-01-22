@@ -33,6 +33,10 @@ export class InternalSufferingServiceData implements ISufferingConfig {
     this.#soft_level_cap = this.#starting_level_cap;
   }
 
+  get disabled_enough() {
+    return this.num_skills_disabled >= this.num_skill_disables_to_cap;
+  }
+
   get hard_level_cap() {
     return this.#hard_level_cap;
   }
@@ -95,11 +99,7 @@ export default class InternalSufferingService {
   }
 
   #disable_skill_and_raise_level_cap(skill: AnySkill) {
-    if (
-      !is_suffering() ||
-      !skill.isUnlocked ||
-      this.#data.num_skills_disabled >= this.#data.num_skill_disables_to_cap
-    )
+    if (!is_suffering() || !skill.isUnlocked || this.#data.disabled_enough)
       return;
 
     SwalLocale.fire({
@@ -110,7 +110,7 @@ export default class InternalSufferingService {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, disable it!"
-    } as SweetAlertOptions).then((result: any) => {
+    }).then((result: any) => {
       if (result.isConfirmed) {
         this.#log(`Disabling skill ${skill.name}...`);
         skill.setUnlock(false);
@@ -137,55 +137,12 @@ export default class InternalSufferingService {
               this.#data.hard_level_cap
             )
           );
-        // update the skill levels of all skills in the side bar
-        ["Combat", "Non-Combat"].forEach((category: string) => {
-          sidebar.category(category, (cats) => {
-            cats.items().forEach((its) => {
-              const sk = skill_from_id(its.id);
-              if (!sk?.isUnlocked) return;
-
-              cats.item(
-                its.id,
-                this.#sidebar_level_cap_config(sk.level, sk.levelCap)
-              );
-            });
-          });
-        });
+        this.#sidebar_level_cap_update_all();
+        if (this.#data.disabled_enough)
+          this.#sidebar_disable_button_remove_all();
         sidebar.category("Combat").item("melvorD:Attack").click();
       }
     });
-  }
-
-  #init_sidebar() {
-    this.#log("Creating sidebar items and binding disable buttons...");
-    sidebar.category(
-      this.#data.sidebar_category_name,
-      { before: "Combat", toggleable: false },
-      (suffering) => {
-        suffering.item(this.#data.sidebar_item_name, {
-          ...this.#sidebar_level_cap_config(
-            this.#data.soft_level_cap,
-            this.#data.hard_level_cap
-          ),
-          ...{ icon: this.#data.icon_url }
-        });
-      }
-    );
-
-    const self = this; // js is such a dogshit language omfg
-    sidebar
-      .category("Non-Combat")
-      .items()
-      .forEach((x) => {
-        const skill = skill_from_id(x.id);
-        if (skill?.id === "melvorD:Magic" || !skill?.isUnlocked) return;
-
-        x.subitem("Disable", {
-          onClick() {
-            self.#disable_skill_and_raise_level_cap(skill);
-          }
-        });
-      });
   }
 
   #log(msg: any, ...opts: any[]) {
@@ -295,11 +252,97 @@ export default class InternalSufferingService {
     });
   }
 
+  #show_gamemode_description() {
+    SwalLocale.fire({
+      iconHtml: this.#data.logo_html,
+      title: "How2Play",
+      html:
+        `When you start your skills are capped at level ${
+          this.#data.starting_level_cap
+        }` +
+        `<br><br>` +
+        `Disabling skills raises this cap by ${
+          this.#data.level_cap_increment
+        } for each skill you disable up to the highest possible level, ${
+          this.#data.hard_level_cap
+        }` +
+        `<br><br>` +
+        `Skills are disabled using the button in the dropdown menu under the skill you'd like to disable on the left side (the little arrow next to the level).` +
+        `<br><br>` +
+        `The goal is to beat the last boss as fast as you can! Have fun :)`,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Got it!"
+    });
+  }
+
+  #sidebar_disable_button_remove_all() {
+    sidebar.category("Non-Combat", (cats) => {
+      cats.items().forEach((i) => {
+        cats.item(i.id).removeAllSubitems();
+      });
+    });
+  }
+
+  #sidebar_init() {
+    this.#log("Creating sidebar items and binding disable buttons...");
+    const self = this; // js is such a dogshit language omfg
+    sidebar.category(
+      this.#data.sidebar_category_name,
+      { before: "Combat", toggleable: false },
+      (suffering) => {
+        suffering.item(this.#data.sidebar_item_name, {
+          ...this.#sidebar_level_cap_config(
+            this.#data.soft_level_cap,
+            this.#data.hard_level_cap
+          ),
+          ...{ icon: this.#data.icon_url },
+          onClick() {
+            self.#show_gamemode_description();
+          }
+        });
+      }
+    );
+
+    sidebar
+      .category("Non-Combat")
+      .items()
+      .forEach((x) => {
+        const skill = skill_from_id(x.id);
+        if (skill?.id === "melvorD:Magic" || !skill?.isUnlocked) return;
+
+        x.subitem("Disable", {
+          onClick() {
+            self.#disable_skill_and_raise_level_cap(skill);
+          }
+        });
+      });
+
+    this.#sidebar_level_cap_update_all();
+    if (this.#data.disabled_enough) this.#sidebar_disable_button_remove_all();
+  }
+
   #sidebar_level_cap_config(
     top: number | string,
     bottom: number | string
   ): SidebarItemConfig {
     return { aside: `(${top} / ${bottom})` };
+  }
+
+  #sidebar_level_cap_update_all() {
+    ["Combat", "Non-Combat"].forEach((category: string) => {
+      sidebar.category(category, (cats) => {
+        cats.items().forEach((its) => {
+          const sk = skill_from_id(its.id);
+          if (!sk?.isUnlocked) return;
+
+          cats.item(
+            its.id,
+            this.#sidebar_level_cap_config(sk.level, sk.levelCap)
+          );
+        });
+      });
+    });
   }
 
   static init(ctx: ModContext, cfg: ISufferingConfig) {
@@ -309,19 +352,22 @@ export default class InternalSufferingService {
     service.#log("Trans rights are human rights.");
 
     service.#ctx.onCharacterLoaded((_c) => {
+      if (!is_suffering()) return;
+
       service.#data.soft_level_cap =
         service.#data.starting_level_cap +
         service.#data.level_cap_increment * service.#data.num_skills_disabled;
-    });
-
-    service.#ctx.onInterfaceReady((_c) => {
-      if (!is_suffering()) return;
 
       service.#patch_skill_levelCap();
       service.#patch_skill_capXPForGamemode();
       service.#patch_skill_renderXPCap();
       service.#patch_baseManager_onEnemyDeath();
-      service.#init_sidebar();
+    });
+
+    service.#ctx.onInterfaceReady((_c) => {
+      if (!is_suffering()) return;
+
+      service.#sidebar_init();
     });
   }
 }
