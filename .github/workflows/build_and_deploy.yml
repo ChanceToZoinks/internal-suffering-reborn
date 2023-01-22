@@ -1,0 +1,59 @@
+name: Build and Deploy Mod to Mod.io
+
+on:
+  create:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-deploy:
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # needed to create a release
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: latest
+          check-latest: true
+
+      - name: build
+        run: |
+          npm install
+          npm run build
+
+      - name: get metadata
+        id: metadata
+        run: |
+          GAME_ID=$(jq '.game' metadata.json)
+          MOD_ID=$(jq '.mod' metadata.json)
+          VERSION=$(jq '.version' metadata.json -r)
+          ZIPFILE_NAME=$(jq '.zipfile' metadata.json -r)
+          VERSION_CHANGELOG=$(git log -1 --pretty=%B)
+
+          echo "GAME=$GAME_ID" >> $GITHUB_OUTPUT
+          echo "MOD=$MOD_ID" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "ZIPFILE=./dist/$ZIPFILE_NAME" >> $GITHUB_OUTPUT
+          echo "CHANGELOG=$VERSION_CHANGELOG" >> $GITHUB_OUTPUT
+
+      - name: deploy to mod io
+        uses: nickelc/upload-to-modio@v2.0.0
+        with:
+          token: ${{ secrets.MODIO_TOKEN }}
+          game: ${{ steps.metadata.outputs.GAME }}
+          mod: ${{ steps.metadata.outputs.MOD }}
+          version: ${{ steps.metadata.outputs.VERSION }}
+          path: ${{ steps.metadata.outputs.ZIPFILE }}
+          changelog: ${{ steps.metadata.outputs.CHANGELOG }}
+          active: true
+
+      - name: create github release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: ${{ steps.metadata.outputs.ZIPFILE }}
+          body: ${{ steps.metadata.outputs.CHANGELOG }}
+          makeLatest: true
