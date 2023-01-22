@@ -98,7 +98,9 @@ export default class InternalSufferingService {
     this.#data = new InternalSufferingServiceData(cfg);
   }
 
-  #disable_skill_and_raise_level_cap(skill: AnySkill) {
+  #disable_skill_and_raise_level_cap(
+    skill: GatheringSkill<any, any> | CraftingSkill<any, any>
+  ) {
     if (!is_suffering() || !skill.isUnlocked || this.#data.disabled_enough)
       return;
 
@@ -113,6 +115,7 @@ export default class InternalSufferingService {
     }).then((result: any) => {
       if (result.isConfirmed) {
         this.#log(`Disabling skill ${skill.name}...`);
+        skill.stop();
         skill.setUnlock(false);
         this.#data.soft_level_cap += this.#data.level_cap_increment;
         SwalLocale.fire({
@@ -308,7 +311,9 @@ export default class InternalSufferingService {
       .category("Non-Combat")
       .items()
       .forEach((x) => {
-        const skill = skill_from_id(x.id);
+        const skill = <GatheringSkill<any, any> | CraftingSkill<any, any>>(
+          skill_from_id(x.id)
+        );
         if (skill?.id === "melvorD:Magic" || !skill?.isUnlocked) return;
 
         x.subitem("Disable", {
